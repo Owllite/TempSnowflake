@@ -27,7 +27,7 @@ st.write(
 
 #st.write('Your favourite fruit is:', option)
 
-session = get_active_session()
+session = cnx.session()
 
 customer_name = st.text_input('Name', placeholder='Type your name here')
 st.write('Your name is ',customer_name)
