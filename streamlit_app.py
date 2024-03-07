@@ -1,6 +1,7 @@
 # Import python packages
 import streamlit as st
 import requests
+import pandas
 # Disabled for External Streamlit
 # from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
@@ -11,7 +12,8 @@ cnx = st.connection("snowflake")
 session = cnx.session()
 
 # Get Snowflake data
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('SEARCH_ON'))
+pd_df = my_dataframe.to_pandas()
 
 # Setup API
 fruityvice_api = "https://fruityvice.com/api/"
@@ -45,8 +47,10 @@ if ingredients_list:
     st.write(' '.join(ingredients_list))
     # Get API Data
     for ingredient in ingredients_list:
+        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == ingredient, 'SEARCH_ON'].iloc[0]
+        st.write('The search value for ', ingredient,' is ', search_on, '.')
         st.subheader(ingredient + " Nutrition Information")
-        fruityvice_response = requests.get(fruityvice_api + "fruit/" + ingredient)
+        fruityvice_response = requests.get(fruityvice_api + "fruit/" + search_on)
         fv_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
 else:
     st.session_state['submit_is_disabled'] = True
