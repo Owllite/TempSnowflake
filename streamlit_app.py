@@ -13,16 +13,13 @@ session = cnx.session()
 # Get Snowflake data
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 
-# Get API Data
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/watermelon")
-st.text(fruityvice_response.json())
-fv_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
-
+# Setup API
+fruityvice_api = "https://fruityvice.com/api/"
 
 #### Form Headers
 st.title("My Parents New Healthy Diner")
 
-st.write("Breakfast Menu")
+st.subheader("Breakfast Menu")
 st.write("Omega 3 & Blueberry Oatmeal")
 st.write("Kale, Spinach & Rocket Smoothie")
 st.write("Hard-Boiled Free-Range Egg")
@@ -46,6 +43,11 @@ ingredients_list = st.multiselect(
 if ingredients_list:
     st.session_state['submit_is_disabled'] = False
     st.write(' '.join(ingredients_list))
+    # Get API Data
+    for ingredient in ingredients_list:
+        st.subheader(ingredient + " Nutrition Information")
+        fruityvice_response = requests.get(fruityvice_api + "fruit/" + ingredient)
+        fv_df = st.dataframe(data=fruityvice_response.json(), use_container_width=True)
 else:
     st.session_state['submit_is_disabled'] = True
 
